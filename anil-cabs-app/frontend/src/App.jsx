@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { ArrowRight, CalendarDays, CarFront, CheckCircle2, Clock3, MapPin, Menu, MessageCircle, ShieldCheck, Sparkles, Users, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, CalendarDays, CarFront, CheckCircle2, Clock3, Download, MapPin, Menu, MessageCircle, ShieldCheck, Smartphone, Sparkles, Users, X } from 'lucide-react';
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').replace(/\/$/, '');
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 const WHATSAPP_NUMBER = (import.meta.env.VITE_WHATSAPP_NUMBER || '919014726337').replace(/\D/g, '');
 const initialForm = { fullName: '', mobileNumber: '', pickupPoint: '', destination: '', dropPoint: '', travelDate: '', travelTime: '', passengers: '1', tripType: 'One Way', notes: '' };
 
@@ -15,6 +15,47 @@ function App() {
   const [error, setError] = useState('');
   const [booking, setBooking] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+  const [appInstalled, setAppInstalled] = useState(() => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+    };
+    const handleAppInstalled = () => {
+      setAppInstalled(true);
+      setInstallPrompt(null);
+      setShowInstallHelp(false);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  async function installApp() {
+    if (!installPrompt) {
+      setShowInstallHelp(open => !open);
+      return;
+    }
+
+    try {
+      await installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      setInstallPrompt(null);
+      if (outcome !== 'accepted') setShowInstallHelp(true);
+    } catch {
+      setInstallPrompt(null);
+      setShowInstallHelp(true);
+    }
+  }
+
+  const isAppleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   const update = (event) => setForm(current => ({ ...current, [event.target.name]: event.target.value }));
 
@@ -53,7 +94,7 @@ function App() {
 
     <main>
       <section className="hero"><div className="hero-glow"/><div className="container hero-grid"><div className="hero-copy"><div className="eyebrow"><span className="eyebrow-line"/> YOUR RIDE. YOUR WAY.</div><h1>Every journey<br/>starts with <span>trust.</span></h1><p className="hero-lead">Comfortable rides, reliable service, and easy booking through WhatsApp. Tell us where you want to go — we’ll take it from there.</p><div className="hero-actions"><a href="#booking" className="button button-orange">Book your cab <ArrowRight size={18}/></a><a className="button button-outline" href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer"><MessageCircle size={18}/> Chat on WhatsApp</a></div><div className="hero-trust"><span><ShieldCheck size={17}/> Safe & dependable</span><span><Clock3 size={17}/> 24/7 service</span></div></div>
-      <div className="hero-visual"><div className="visual-orbit orbit-one"/><div className="visual-orbit orbit-two"/><div className="visual-card"><div className="visual-card-top"><span className="live-dot"/> READY WHEN YOU ARE</div><div className="car-art"><div className="car-shadow"/><svg viewBox="0 0 560 260" role="img" aria-label="Illustration of a white sedan cab"><defs><linearGradient id="body" x1="0" x2="0.2" y1="0" y2="1"><stop offset="0" stopColor="#fff"/><stop offset="1" stopColor="#cfd4db"/></linearGradient><linearGradient id="glass" x1="0" x2="1"><stop stopColor="#34404c"/><stop offset="1" stopColor="#121820"/></linearGradient></defs><ellipse cx="285" cy="220" rx="220" ry="18" fill="#000" opacity=".13"/><path d="M73 164 L103 124 Q119 112 158 106 L219 52 Q235 37 266 35 L361 37 Q389 39 410 65 L454 117 Q483 125 493 149 L503 185 L489 204 L62 204 L56 184Z" fill="url(#body)" stroke="#aab2bb" strokeWidth="2"/><path d="M130 118 L228 57 Q240 49 265 49 L300 50 L281 118Z" fill="url(#glass)"/><path d="M292 50 L356 51 Q376 52 391 71 L425 118 L291 118Z" fill="url(#glass)"/><path d="M227 58 L209 118" stroke="#88929d" strokeWidth="4"/><path d="M287 49 L284 119" stroke="#89939d" strokeWidth="4"/><path d="M104 130 Q132 120 156 121 L423 124" fill="none" stroke="#fff" strokeWidth="4" opacity=".8"/><path d="M68 164 L96 158 L102 178 L66 181Z" fill="#fff4d8" stroke="#aeb5bd"/><path d="M461 147 L491 154 L495 170 L466 166Z" fill="#ff7b35"/><path d="M104 180 L453 180" stroke="#9ba4ae" strokeWidth="3"/><path d="M170 130 L171 164 M440 130 L442 164" stroke="#9ba4ae" strokeWidth="3"/><rect x="294" y="143" width="70" height="21" rx="4" fill="#f56a0b"/><text x="329" y="157" fontSize="11" fontWeight="800" fill="#fff" textAnchor="middle">ANIL CABS</text><circle cx="151" cy="194" r="35" fill="#1b2027"/><circle cx="151" cy="194" r="23" fill="#aeb6c0"/><circle cx="151" cy="194" r="14" fill="#333b45"/><circle cx="151" cy="194" r="5" fill="#e7ebef"/><circle cx="426" cy="194" r="35" fill="#1b2027"/><circle cx="426" cy="194" r="23" fill="#aeb6c0"/><circle cx="426" cy="194" r="14" fill="#333b45"/><circle cx="426" cy="194" r="5" fill="#e7ebef"/></svg></div><div className="visual-route"><div className="route-pin"><MapPin size={17}/></div><div><strong>Your destination awaits</strong><small>Pickup to drop-off, made simple</small></div><span className="route-arrow"><ArrowRight size={18}/></span></div></div></div></section>
+      <div className="hero-visual"><div className="visual-orbit orbit-one"/><div className="visual-orbit orbit-two"/><div className="visual-card"><div className="visual-card-top"><span className="live-dot"/> READY WHEN YOU ARE</div><div className="car-art"><div className="car-shadow"/><svg viewBox="0 0 560 260" role="img" aria-label="Illustration of a white sedan cab"><defs><linearGradient id="body" x1="0" x2="0.2" y1="0" y2="1"><stop offset="0" stopColor="#fff"/><stop offset="1" stopColor="#cfd4db"/></linearGradient><linearGradient id="glass" x1="0" x2="1"><stop stopColor="#34404c"/><stop offset="1" stopColor="#121820"/></linearGradient></defs><ellipse cx="285" cy="220" rx="220" ry="18" fill="#000" opacity=".13"/><path d="M73 164 L103 124 Q119 112 158 106 L219 52 Q235 37 266 35 L361 37 Q389 39 410 65 L454 117 Q483 125 493 149 L503 185 L489 204 L62 204 L56 184Z" fill="url(#body)" stroke="#aab2bb" strokeWidth="2"/><path d="M130 118 L228 57 Q240 49 265 49 L300 50 L281 118Z" fill="url(#glass)"/><path d="M292 50 L356 51 Q376 52 391 71 L425 118 L291 118Z" fill="url(#glass)"/><path d="M227 58 L209 118" stroke="#88929d" strokeWidth="4"/><path d="M287 49 L284 119" stroke="#89939d" strokeWidth="4"/><path d="M104 130 Q132 120 156 121 L423 124" fill="none" stroke="#fff" strokeWidth="4" opacity=".8"/><path d="M68 164 L96 158 L102 178 L66 181Z" fill="#fff4d8" stroke="#aeb5bd"/><path d="M461 147 L491 154 L495 170 L466 166Z" fill="#ff7b35"/><path d="M104 180 L453 180" stroke="#9ba4ae" strokeWidth="3"/><path d="M170 130 L171 164 M440 130 L442 164" stroke="#9ba4ae" strokeWidth="3"/><rect x="294" y="143" width="70" height="21" rx="4" fill="#f56a0b"/><text x="329" y="157" fontSize="11" fontWeight="800" fill="#fff" textAnchor="middle">ANIL CABS</text><circle cx="151" cy="194" r="35" fill="#1b2027"/><circle cx="151" cy="194" r="23" fill="#aeb6c0"/><circle cx="151" cy="194" r="14" fill="#333b45"/><circle cx="151" cy="194" r="5" fill="#e7ebef"/><circle cx="426" cy="194" r="35" fill="#1b2027"/><circle cx="426" cy="194" r="23" fill="#aeb6c0"/><circle cx="426" cy="194" r="14" fill="#333b45"/><circle cx="426" cy="194" r="5" fill="#e7ebef"/></svg></div><div className="visual-route"><div className="route-pin"><MapPin size={17}/></div><div><strong>Your destination awaits</strong><small>Pickup to drop-off, made simple</small></div><span className="route-arrow"><ArrowRight size={18}/></span></div></div></div></div></section>
 
       <section className="booking-section" id="booking"><div className="container booking-layout"><div className="booking-intro"><div className="eyebrow"><span className="eyebrow-line"/> LET’S GET YOU MOVING</div><h2>Book your ride<br/>in <span>just a few steps.</span></h2><p>Share your trip details below. We’ll create a unique booking ID and open WhatsApp with your details ready to send.</p><div className="booking-note"><div className="note-icon"><MessageCircle size={22}/></div><div><strong>WhatsApp-powered booking</strong><p>No app installation needed. Send your booking details directly to our team.</p></div></div><div className="mini-stat-row"><div><strong>24/7</strong><span>Support</span></div><div><strong>1 unique ID</strong><span>For every booking</span></div><div><strong>Simple</strong><span>Booking process</span></div></div></div>
       <div className="form-card"><div className="form-heading"><div><span className="form-step">BOOKING REQUEST</span><h3>Plan your trip</h3></div><span className="form-car-icon"><CarFront size={25}/></span></div>
@@ -69,6 +110,15 @@ function App() {
       <section className="final-cta"><div className="container final-cta-inner"><div><span>READY FOR YOUR NEXT JOURNEY?</span><h2>Your journey, our responsibility.</h2></div><a href="#booking" className="button button-dark">Book Anil Cabs <ArrowRight size={18}/></a></div></section>
     </main>
     <footer className="footer"><div className="container footer-main"><Brand light/><div className="footer-contact"><span><MapPin size={16}/> Hyderabad, Telangana</span><a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer"><MessageCircle size={16}/> WhatsApp Anil Cabs</a></div></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} Anil Cabs. All rights reserved.</span><span>Safe · Reliable · Comfortable</span></div></footer>
+    {!appInstalled && <aside className="install-bar" aria-label="Install Anil Cabs app">
+      {showInstallHelp && <div className="install-help" role="status">
+        <button className="install-help-close" type="button" onClick={() => setShowInstallHelp(false)} aria-label="Close install instructions"><X size={16}/></button>
+        <strong>Install Anil Cabs</strong>
+        <p>{isAppleMobile ? 'Tap Share in Safari, then choose Add to Home Screen.' : 'Open your browser menu and choose Install Anil Cabs or Add to Home screen.'}</p>
+      </div>}
+      <div className="install-bar-copy"><span className="install-icon"><Smartphone size={20}/></span><span><strong>Use Anil Cabs like an app</strong><small>Quick access from your home screen</small></span></div>
+      <button className="install-button" type="button" onClick={installApp}><Download size={17}/> Install app</button>
+    </aside>}
   </div>;
 }
 

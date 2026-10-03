@@ -13,7 +13,7 @@ a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}.
   .hero { padding-top: 32px; padding-bottom: 42px; }
   .hero h1 { font-size: clamp(40px, 12vw, 56px); line-height: 1.04; }
   .hero-actions { flex-direction: column; }
-  .button { width: 100%; }
+  .button { width: 100%; box-sizing: border-box; }
   .hero-trust { flex-direction: column; align-items: flex-start; gap: 10px; }
   .booking-layout, .why-grid, .service-grid, .form-grid, .footer-main, .footer-bottom, .final-cta-inner {
     grid-template-columns: 1fr; display: grid; 
@@ -29,4 +29,27 @@ a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}.
 
 @media (prefers-color-scheme: dark) {
   :root { --soft: #121416; --line: #2a2d31; }
+}
+
+body { padding-bottom: calc(84px + var(--safe-bottom)); }
+.install-bar { position: fixed; inset: auto 0 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px max(24px, calc((100vw - 1160px) / 2)) calc(12px + var(--safe-bottom)); border-top: 3px solid var(--orange); background: #17191d; color: #fff; box-shadow: 0 -8px 24px #17191d1f; }
+.install-bar-copy { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.install-icon { display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 38px; border-radius: 8px; background: #ffffff18; color: #ff9a55; }
+.install-bar-copy strong, .install-bar-copy small { display: block; }
+.install-bar-copy strong { font-size: 14px; }
+.install-bar-copy small { margin-top: 3px; color: #c5c7cc; font-size: 12px; }
+.install-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 17px; border: 0; border-radius: 6px; background: var(--orange); color: #fff; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.install-button:hover { background: var(--orange-dark); }
+.install-help { position: absolute; right: max(24px, calc((100vw - 1160px) / 2)); bottom: calc(100% + 10px); width: min(360px, calc(100vw - 32px)); box-sizing: border-box; padding: 18px 42px 16px 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); box-shadow: 0 8px 28px #17191d24; }
+.install-help p { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.install-help-close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); cursor: pointer; }
+@media (max-width: 480px) {
+  body { padding-bottom: calc(72px + var(--safe-bottom)); }
+  .install-bar { gap: 10px; padding: 10px 12px calc(10px + var(--safe-bottom)); }
+  .install-bar-copy { gap: 8px; }
+  .install-icon { width: 34px; height: 34px; flex-basis: 34px; }
+  .install-bar-copy strong { font-size: 12px; }
+  .install-bar-copy small { font-size: 10px; }
+  .install-button { min-height: 42px; padding: 0 11px; font-size: 12px; }
+  .install-help { right: 12px; }
 }
