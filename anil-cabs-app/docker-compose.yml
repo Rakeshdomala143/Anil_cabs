@@ -1,6 +1,22 @@
 version: '3.9'
 
 services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: Anil_cabs
+      MYSQL_USER: ${DB_USERNAME:?Set DB_USERNAME in the project .env file}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in the project .env file}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in the project .env file}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -10,10 +26,13 @@ services:
     environment:
       PORT: 8080
       APP_CORS_ALLOWED_ORIGIN: http://localhost:5173
-      SPRING_DATASOURCE_URL: jdbc:h2:mem:anilcabs;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: 
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      DB_URL: jdbc:mysql://mysql:3306/Anil_cabs?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME in the project .env file}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in the project .env file}
+      DB_DRIVER: com.mysql.cj.jdbc.Driver
+    depends_on:
+      mysql:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -29,3 +48,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  mysql-data:

@@ -19,20 +19,22 @@ A responsive cab-booking web app using React/Vite for the frontend and Java 17 +
 
 - Node.js 20+ and npm
 - Java 17+
-- Maven 3.9+ (or use the included Dockerfile for backend deployment)
+- Use the included Gradle wrapper; no separate Gradle installation is required
 
 ## Run locally
 
 ### 1. Start the Java backend
 
+Configure `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` for your local MySQL server before starting the backend. The default URL targets `localhost:3306/Anil_cabs`. Keep real credentials in environment variables; do not commit them.
+
 ```bash
 cd backend
-mvn spring-boot:run
+.\gradlew.bat bootRun
 ```
 
 Backend health check: <http://localhost:8080/api/health>
 
-The local backend uses an in-memory H2 database. Data will be cleared when the backend restarts.
+The backend uses MySQL; bookings persist across application restarts.
 
 ### 2. Start the React frontend
 
@@ -57,6 +59,8 @@ VITE_WHATSAPP_NUMBER=919014726337
 For local development, keep `VITE_API_BASE_URL` set to `/api`; Vite forwards requests to the Java backend. Do not use `localhost:8080` when opening the frontend from another device, because that address would point to that device. In production, set `VITE_API_BASE_URL` to the deployed backend URL.
 
 `VITE_WHATSAPP_NUMBER` must be the business WhatsApp number in international format, digits only. The supplied value uses the phone number shown on the provided Anil Cabs artwork; change it if the business uses another WhatsApp number. Restart Vite after changing environment variables.
+
+For Docker Compose, copy the project `.env.example` to `.env`, set unique strong values for `DB_PASSWORD` and `MYSQL_ROOT_PASSWORD`, then run `docker compose up --build`. Compose starts MySQL with a persistent named volume.
 
 ## API examples
 
@@ -109,8 +113,8 @@ A straightforward setup is **Render for the Java API + PostgreSQL** and **Vercel
 1. Push this project to a GitHub repository.
 2. Create a Render **Web Service** from the repository.
 3. Set the Root Directory to `backend`.
-4. Build command: `mvn clean package -DskipTests`
-5. Start command: `java -jar target/anil-cabs-api-1.0.0.jar`
+4. Build command: `chmod +x gradlew && ./gradlew --no-daemon bootJar`
+5. Start command: `java -jar build/libs/anil-cabs-api-1.0.0.jar`
 6. Add these environment variables, using values from your PostgreSQL provider:
 
 ```env
