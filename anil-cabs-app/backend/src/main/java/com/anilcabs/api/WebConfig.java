@@ -1,5 +1,7 @@
 package com.anilcabs.api;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -12,8 +14,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        String[] origins = Arrays.stream(allowedOrigin.split(","))
+            .map(String::trim)
+            .filter(value -> !value.isEmpty())
+            .toArray(String[]::new);
+
         registry.addMapping("/api/**")
-            .allowedOriginPatterns(allowedOrigin.split(","))
+            .allowedOriginPatterns(origins)
             .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)

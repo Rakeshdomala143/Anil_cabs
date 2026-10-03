@@ -24,7 +24,11 @@ function App() {
     if (form.travelDate && form.travelDate < new Date().toLocaleDateString('en-CA')) { setError('Travel date cannot be in the past.'); return; }
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/bookings`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+      const response = await fetch(`${API_BASE}/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.message || 'Could not save your booking. Please try again.');
       setBooking(data);
