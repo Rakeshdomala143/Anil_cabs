@@ -11,6 +11,7 @@ A responsive cab-booking web app using React/Vite for the frontend and Java 17 +
 - CORS configuration for React frontend to call Java backend
 - Local H2 database for development; PostgreSQL supported for deployment
 - WhatsApp click-to-chat flow using a configurable phone number
+- If the booking API is unavailable, the form opens WhatsApp with a direct request and clearly indicates that it was not saved to the website database
 
 > WhatsApp click-to-chat does not send a message automatically. The customer must tap **Send** in WhatsApp. Automatic outbound messages, delivery notifications and WhatsApp webhooks require the official WhatsApp Business Platform and its credentials.
 
@@ -137,6 +138,8 @@ VITE_WHATSAPP_NUMBER=919014726337
 For a Render Static Site, use Root Directory `frontend`, Build Command `npm install && npm run build`, Publish Directory `dist`, and the same environment variables.
 
 After deployment, update the backend's `APP_CORS_ALLOWED_ORIGIN` to the exact deployed frontend origin (include `https://`, no trailing path). Redeploy the backend after changing it. If using multiple frontend domains, separate origins with commas.
+
+If the booking API is unreachable, the form still opens WhatsApp with the trip details as a direct request. That fallback is not stored in the website database and does not have a booking ID; deploy and configure the Spring Boot API to enable saved bookings.
 
 ### D. Before sharing with customers
 
