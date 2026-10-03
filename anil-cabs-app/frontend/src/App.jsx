@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight, CalendarDays, CarFront, CheckCircle2, Clock3, Download, MapPin, Menu, MessageCircle, ShieldCheck, Smartphone, Sparkles, Users, X } from 'lucide-react';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+const API_CONNECTION_ERROR = 'Booking service is unavailable. Check your connection, then retry.';
 const WHATSAPP_NUMBER = (import.meta.env.VITE_WHATSAPP_NUMBER || '919014726337').replace(/\D/g, '');
 const initialForm = { fullName: '', mobileNumber: '', pickupPoint: '', destination: '', dropPoint: '', travelDate: '', travelTime: '', passengers: '1', tripType: 'One Way', notes: '' };
 
@@ -15,6 +16,7 @@ function App() {
   const [error, setError] = useState('');
   const [booking, setBooking] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [apiStatus, setApiStatus] = useState('checking');
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
   const [appInstalled, setAppInstalled] = useState(() => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true);
@@ -57,7 +59,33 @@ function App() {
 
   const isAppleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-  const update = (event) => setForm(current => ({ ...current, [event.target.name]: event.target.value }));
+  async function checkApiConnection() {
+    setApiStatus('checking');
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 7000);
+
+    try {
+      const response = await fetch(`${API_BASE}/health`, { cache: 'no-store', signal: controller.signal });
+      if (!response.ok) throw new Error('Booking service health check failed');
+      setApiStatus('online');
+      setError(currentError => currentError === API_CONNECTION_ERROR ? '' : currentError);
+      return true;
+    } catch {
+      setApiStatus('offline');
+      return false;
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
+  useEffect(() => {
+    checkApiConnection();
+  }, []);
+
+  const update = (event) => {
+    setForm(current => ({ ...current, [event.target.name]: event.target.value }));
+    setError('');
+  };
 
   async function submitBooking(event) {
     event.preventDefault(); setError(''); setBooking(null);
@@ -65,6 +93,10 @@ function App() {
     if (form.travelDate && form.travelDate < new Date().toLocaleDateString('en-CA')) { setError('Travel date cannot be in the past.'); return; }
     setLoading(true);
     try {
+      if (!await checkApiConnection()) {
+        setError(API_CONNECTION_ERROR);
+        return;
+      }
       const response = await fetch(`${API_BASE}/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,7 +116,12 @@ function App() {
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
       setForm(initialForm);
     } catch (e) {
-      setError(`${e.message} Make sure the Java backend is running and the API URL is correct.`);
+      if (e instanceof TypeError || e.name === 'AbortError') {
+        setApiStatus('offline');
+        setError(API_CONNECTION_ERROR);
+      } else {
+        setError(e.message);
+      }
     } finally { setLoading(false); }
   }
 
@@ -99,6 +136,7 @@ function App() {
       <section className="booking-section" id="booking"><div className="container booking-layout"><div className="booking-intro"><div className="eyebrow"><span className="eyebrow-line"/> LET’S GET YOU MOVING</div><h2>Book your ride<br/>in <span>just a few steps.</span></h2><p>Share your trip details below. We’ll create a unique booking ID and open WhatsApp with your details ready to send.</p><div className="booking-note"><div className="note-icon"><MessageCircle size={22}/></div><div><strong>WhatsApp-powered booking</strong><p>No app installation needed. Send your booking details directly to our team.</p></div></div><div className="mini-stat-row"><div><strong>24/7</strong><span>Support</span></div><div><strong>1 unique ID</strong><span>For every booking</span></div><div><strong>Simple</strong><span>Booking process</span></div></div></div>
       <div className="form-card"><div className="form-heading"><div><span className="form-step">BOOKING REQUEST</span><h3>Plan your trip</h3></div><span className="form-car-icon"><CarFront size={25}/></span></div>
       {booking && <div className="success-box"><CheckCircle2 size={20}/><div><strong>Booking saved successfully!</strong><span>Your unique booking ID is <b>{booking.bookingCode}</b>. WhatsApp should open in a new tab so you can send the request.</span></div><button onClick={() => setBooking(null)} aria-label="Dismiss"><X size={16}/></button></div>}
+      {apiStatus !== 'online' && <div className="error-box connection-error" role={apiStatus === 'offline' ? 'alert' : 'status'}><span>{apiStatus === 'checking' ? 'Checking booking service...' : API_CONNECTION_ERROR}</span>{apiStatus === 'offline' && <button type="button" onClick={checkApiConnection}>Retry connection</button>}</div>}
       {error && <div className="error-box" role="alert">{error}</div>}
       <form onSubmit={submitBooking} className="booking-form"><div className="form-grid"><label className="field full"><span>Full name <b>*</b></span><input name="fullName" value={form.fullName} onChange={update} placeholder="Enter your full name" autoComplete="name" required maxLength="100"/></label><label className="field"><span>Mobile number <b>*</b></span><div className="input-with-prefix"><span>+91</span><input name="mobileNumber" value={form.mobileNumber} onChange={update} placeholder="10-digit number" inputMode="numeric" pattern="[0-9]{10}" maxLength="10" autoComplete="tel-national" required/></div></label><label className="field"><span>Trip type</span><select name="tripType" value={form.tripType} onChange={update}><option>One Way</option><option>Round Trip</option><option>Local Trips</option><option>Airport Pickup & Drop</option></select></label><label className="field full"><span>Pickup point <b>*</b></span><div className="input-with-icon"><MapPin size={17}/><input name="pickupPoint" value={form.pickupPoint} onChange={update} placeholder="Where should we pick you up?" required maxLength="250"/></div></label><label className="field full"><span>Destination <b>*</b></span><div className="input-with-icon"><MapPin size={17}/><input name="destination" value={form.destination} onChange={update} placeholder="Where are you travelling to?" required maxLength="250"/></div></label><label className="field full"><span>Drop point <small>(if different from destination)</small></span><div className="input-with-icon"><MapPin size={17}/><input name="dropPoint" value={form.dropPoint} onChange={update} placeholder="Final drop location (optional)" maxLength="250"/></div></label><label className="field"><span>Travel date</span><div className="input-with-icon"><CalendarDays size={17}/><input type="date" name="travelDate" value={form.travelDate} onChange={update} min={new Date().toLocaleDateString('en-CA')}/></div></label><label className="field"><span>Pickup time</span><div className="input-with-icon"><Clock3 size={17}/><input type="time" name="travelTime" value={form.travelTime} onChange={update}/></div></label><label className="field"><span>Passengers</span><select name="passengers" value={form.passengers} onChange={update}>{[1,2,3,4,5,6,7].map(n=><option key={n} value={n}>{n} {n===1?'passenger':'passengers'}</option>)}</select></label><label className="field full"><span>Additional requests <small>(optional)</small></span><textarea name="notes" value={form.notes} onChange={update} placeholder="Luggage, return trip details, or anything we should know" rows="2" maxLength="500"/></label></div>
       <button className="button button-orange submit-button" type="submit" disabled={loading}>{loading ? <><span className="spinner"/> Saving booking...</> : <>Save booking & continue to WhatsApp <ArrowRight size={18}/></>}</button><p className="form-privacy"><ShieldCheck size={14}/> Your details are used to coordinate this booking.</p></form></div></div></section>

@@ -49,9 +49,11 @@ Open the URL printed by Vite, usually <http://localhost:5173>.
 Edit `frontend/.env`:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8080/api
+VITE_API_BASE_URL=/api
 VITE_WHATSAPP_NUMBER=919014726337
 ```
+
+For local development, keep `VITE_API_BASE_URL` set to `/api`; Vite forwards requests to the Java backend. Do not use `localhost:8080` when opening the frontend from another device, because that address would point to that device. In production, set `VITE_API_BASE_URL` to the deployed backend URL.
 
 `VITE_WHATSAPP_NUMBER` must be the business WhatsApp number in international format, digits only. The supplied value uses the phone number shown on the provided Anil Cabs artwork; change it if the business uses another WhatsApp number. Restart Vite after changing environment variables.
 

@@ -43,6 +43,8 @@ body { padding-bottom: calc(84px + var(--safe-bottom)); }
 .install-help { position: absolute; right: max(24px, calc((100vw - 1160px) / 2)); bottom: calc(100% + 10px); width: min(360px, calc(100vw - 32px)); box-sizing: border-box; padding: 18px 42px 16px 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); box-shadow: 0 8px 28px #17191d24; }
 .install-help p { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
 .install-help-close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); cursor: pointer; }
+.connection-error { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.connection-error button { flex: 0 0 auto; padding: 7px 10px; border: 1px solid currentColor; border-radius: 5px; background: #fff; color: inherit; font-weight: 700; cursor: pointer; }
 @media (max-width: 480px) {
   body { padding-bottom: calc(72px + var(--safe-bottom)); }
   .install-bar { gap: 10px; padding: 10px 12px calc(10px + var(--safe-bottom)); }
@@ -52,4 +54,5 @@ body { padding-bottom: calc(84px + var(--safe-bottom)); }
   .install-bar-copy small { font-size: 10px; }
   .install-button { min-height: 42px; padding: 0 11px; font-size: 12px; }
   .install-help { right: 12px; }
+  .connection-error { align-items: flex-start; flex-direction: column; }
 }
