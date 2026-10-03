@@ -7,15 +7,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    @Value("${app.cors.allowed-origin:http://localhost:5173}")
+    @Value("${app.cors.allowed-origin:http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,https://*.vercel.app}")
     private String allowedOrigin;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-            .allowedOrigins(allowedOrigin.split(","))
-            .allowedMethods("GET", "POST", "OPTIONS")
-            .allowedHeaders("Content-Type", "Authorization")
+            .allowedOriginPatterns(allowedOrigin.split(","))
+            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true)
             .maxAge(3600);
     }
 }
