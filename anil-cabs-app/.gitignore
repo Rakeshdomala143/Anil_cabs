@@ -1,8 +1,12 @@
 node_modules/
 dist/
 target/
+.gradle/
+build/
+.vite/
 .env
 .env.local
 .idea/
 .vscode/
 .DS_Store
+*.log
