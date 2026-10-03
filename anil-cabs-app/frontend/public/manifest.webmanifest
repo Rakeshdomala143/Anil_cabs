@@ -1,0 +1,18 @@
+{
+  "name": "Anil Cabs",
+  "short_name": "Anil Cabs",
+  "description": "Book safe, reliable and comfortable rides with Anil Cabs.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f56a0b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

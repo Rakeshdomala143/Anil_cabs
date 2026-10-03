@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Anil Cabs icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f56a0b"/>
+      <stop offset="100%" stop-color="#d94e00"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="160" fill="rgba(255,255,255,0.18)"/>
+  <path d="M142 320c10-74 72-132 154-132 56 0 104 29 136 74l-46 22c-22-29-53-46-90-46-54 0-95 33-109 82l-45 0zm92-38l48-48 52 52-50 44-50-48z" fill="#fff"/>
+  <text x="256" y="395" text-anchor="middle" font-size="98" font-family="Arial, sans-serif" font-weight="700" fill="#fff">A</text>
+</svg>
